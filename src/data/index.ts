@@ -1,0 +1,33 @@
+export const Prices = ["$", "$$", "$$$", "$$$$"];
+export const Features = [
+  "Bar",
+  "Delivery",
+  "Dine In",
+  "Outdoor Seating",
+  "Take Out",
+];
+export const Category = [
+  "American",
+  "BBQ",
+  "Burgers",
+  "Breakfast",
+  "Chicken",
+  "Chinese",
+  "Desserts",
+  "Fast Food",
+  "Hamburgers",
+  "Healthy",
+  "Japanese",
+  "Indian",
+  "Italian",
+  "Mediterranean",
+  "Mexican",
+  "Pasta",
+  "Pizza",
+  "Ramen",
+  "Seafood",
+  "Sushi",
+  "Thai",
+  "Vegan",
+  "Vegetarian",
+];
