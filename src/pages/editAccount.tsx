@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 const EditAccount: React.FC = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [existingPassword, setExistingPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +20,18 @@ const EditAccount: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newPassword && newPassword === confirmNewPassword && !existingPassword) {
+      toast.error("Please enter Existing Password");
+      return;
+    }
+    if (existingPassword && (!newPassword || !confirmNewPassword)) {
+      toast.error("Please enter both new password and confirm new password.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      toast.error("New password and confirm new password do not match.");
+      return;
+    }
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       navigate("/login");
@@ -24,13 +39,20 @@ const EditAccount: React.FC = () => {
     }
     const token = userData.tokens.access_token;
 
+    const payload: any = {
+      userName: username,
+      email: email,
+    };
+
+    if (existingPassword && newPassword) {
+      payload.oldPassword = existingPassword;
+      payload.newPassword = newPassword;
+    }
+
     try {
       const response = await axios.patch(
         `${process.env.REACT_APP_API_URL}/api/users/updateProfile`,
-        {
-          userName: username,
-          email: email,
-        },
+        payload,
         {
           headers: {
             "Content-Type": "application/json",
@@ -111,6 +133,8 @@ const EditAccount: React.FC = () => {
             <input
               type="password"
               id="existingPassword"
+              value={existingPassword}
+              onChange={(e) => setExistingPassword(e.target.value)}
               className="border-b border-gray-300 focus:outline-none focus:border-primary"
             />
           </div>
@@ -124,6 +148,8 @@ const EditAccount: React.FC = () => {
             <input
               type="password"
               id="newPassword"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               className="border-b border-gray-300 focus:outline-none focus:border-primary"
             />
           </div>
@@ -137,6 +163,8 @@ const EditAccount: React.FC = () => {
             <input
               type="password"
               id="confirmNewPassword"
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
               className="border-b border-gray-300 focus:outline-none focus:border-primary"
             />
           </div>
@@ -150,15 +178,6 @@ const EditAccount: React.FC = () => {
           <Toaster richColors />
         </form>
       </div>
-      <div className="overflow-hidden flex justify-center w-full  lg:hidden">
-        {" "}
-        {/* Adjusted margin bottom */}
-        <button className="w-full px-6 py-3 bg-primary hover:bg-secondary text-white font-bold">
-          SUBMIT
-        </button>
-      </div>
-
-      {/* Button */}
     </>
   );
 };

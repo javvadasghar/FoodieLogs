@@ -25,6 +25,13 @@ const EditRestaurant = () => {
     $$$$: 4,
   };
 
+  const reversePriceMapping: any = {
+    1: "$",
+    2: "$$",
+    3: "$$$",
+    4: "$$$$",
+  };
+
   useEffect(() => {
     const fetchRestaurant = async () => {
       try {
@@ -34,9 +41,9 @@ const EditRestaurant = () => {
         const data = response?.data?.data?.restaurant;
         setName(data?.name);
         setLocation(data?.location);
-        setReview(data?.description);
+        setReview(data?.review);
         setRating(data?.rating);
-        setPrice(data?.priceRange);
+        setPrice(reversePriceMapping[data?.price] || Prices[0]);
         setSelectedFeatures(JSON.parse(data?.features || "[]"));
         setSelectedCategories(JSON.parse(data?.categories || "[]"));
       } catch (error) {
@@ -58,7 +65,7 @@ const EditRestaurant = () => {
     const updatedRestaurant = {
       name,
       location,
-      review,
+      review: review ? review : "",
       rating: rating ? rating : 4.5,
       price: price ? priceMapping[price] : 1,
       features: selectedFeatures,
@@ -191,7 +198,7 @@ const EditRestaurant = () => {
           <div className="overflow-hidden flex flex-col justify-center items-center w-full">
             <button
               type="submit"
-              className=" w-full lg:w-1/4  px-6 py-3 bg-primary hover:bg-secondary text-white font-bold "
+              className=" w-full lg:w-2/4  px-6 py-3 bg-primary hover:bg-secondary text-white font-bold "
             >
               SUBMIT
             </button>

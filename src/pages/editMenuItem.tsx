@@ -3,6 +3,7 @@ import ScreenWrapper from "../components/screenWrapper";
 import { Rating } from "react-simple-star-rating";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { Toaster, toast } from "sonner";
 
 const EditMenuItem: React.FC = () => {
   const [menuItem, setmenuItem] = useState<any>(null);
@@ -30,7 +31,6 @@ const EditMenuItem: React.FC = () => {
             },
           }
         );
-
         setmenuItem(response?.data?.data);
         setName(response?.data?.data?.name);
         setRating(response?.data?.data?.rating);
@@ -49,13 +49,9 @@ const EditMenuItem: React.FC = () => {
 
     const updatedMenuItem = {
       name,
-      location: menuItem?.restaurant?.location || "",
       review,
       rating: rating ? rating : 4.5,
-      price: menuItem?.restaurant?.price || 0,
-      features: JSON.parse(menuItem?.restaurant?.features) || [],
-      categories: JSON.parse(menuItem?.restaurant?.categories) || [],
-      userId: userData?.user?.id || 0,
+      restaurantId: menuItem?.restaurant?.id || 0,
     };
 
     try {
@@ -71,12 +67,11 @@ const EditMenuItem: React.FC = () => {
       );
 
       if (response.status === 200) {
-        alert("Menu item updated successfully!");
-        navigate("/menuItems");
+        toast.success("Menu item updated successfully!");
       }
     } catch (error) {
       console.error("Error updating menu item:", error);
-      alert("Failed to update menu item.");
+      toast.error("Failed to update menu item.");
     }
   };
 
@@ -137,6 +132,7 @@ const EditMenuItem: React.FC = () => {
               SUBMIT
             </button>
           </div>
+          <Toaster richColors />
         </form>
       </ScreenWrapper>
     </>
