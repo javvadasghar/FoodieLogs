@@ -9,7 +9,7 @@ const Home = () => {
   const { getAllResturants, AllRestaurants } = useContext(DataContext);
   useEffect(() => {
     getAllResturants();
-  }, []);
+  });
   return (
     <div className="flex flex-col items-center justify-center min-h-screen font-poppins">
       {/* banner container */}
@@ -26,7 +26,7 @@ const Home = () => {
             <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary text-xl" />
           </div>
           <div className="ml-4 p-2 border rounded-full border-primary">
-            <a href="/editAccount">
+            <a href="/accountSettings">
               {" "}
               <MdPerson className="text-4xl text-primary cursor-pointer" />
             </a>
@@ -53,7 +53,7 @@ const Home = () => {
                 review={i.review}
                 rating={i.rating}
                 restaurantId={i.id}
-                // itemCount={9}
+                itemCount={i.menuItemsCount}
                 link={`/restaurant/${i.id}`}
               />
             ))}

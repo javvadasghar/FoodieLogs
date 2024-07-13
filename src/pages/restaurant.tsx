@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import ScreenWrapper from "../components/screenWrapper";
 import { FaSearch } from "react-icons/fa";
 import CustomFilterDropdown from "../components/filters";
-import Card from "../components/card";
+import Card from "../components/menuCard";
 import { FaStar } from "react-icons/fa6";
 import { BiSolidPencil } from "react-icons/bi";
 import { Link, useParams } from "react-router-dom";
@@ -17,13 +17,11 @@ const Restaurant: React.FC = () => {
 
   useEffect(() => {
     const fetchRestaurant = async () => {
-      ;
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/restaurants/fetchRestaurant/${id}`
         );
-        ;
-        setRestaurant(response?.data?.data);
+        setRestaurant(response?.data?.data?.restaurant);
       } catch (error) {
         console.error("Error fetching restaurant data:", error);
       }
@@ -32,7 +30,7 @@ const Restaurant: React.FC = () => {
   }, [id]);
 
   if (!restaurant) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   return (
@@ -131,7 +129,7 @@ const Restaurant: React.FC = () => {
                 {restaurant.priceRange}
               </p>
             </div>
-            <a href="/editRestaurant">
+            <a href={`/editRestaurant/${id}`}>
               <BiSolidPencil
                 className="text-primary border-2 border-grayDark rounded-full p-2 cursor-pointer"
                 size={40}

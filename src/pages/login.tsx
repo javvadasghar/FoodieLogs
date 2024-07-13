@@ -30,7 +30,6 @@ const Login: React.FC = () => {
         toast.error(responseData.message);
         return;
       }
-      ;
       const responseData = await response.json();
       localStorage.setItem("userData", JSON.stringify(responseData.data));
       toast.success("Login Successfully!");

@@ -1,21 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ScreenWrapper from "../components/screenWrapper";
 import { Rating } from "react-simple-star-rating";
 import SelectBoxes from "../components/selectBox";
 import { Prices, Features, Category } from "../data";
+import { Toaster, toast } from "sonner";
 
 const EditRestaurant = () => {
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0);
   const [price, setPrice] = useState(Prices[0]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+
+  const priceMapping: any = {
+    $: 1,
+    $$: 2,
+    $$$: 3,
+    $$$$: 4,
+  };
+
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/restaurants/fetchRestaurant/${id}`
+        );
+        const data = response?.data?.data?.restaurant;
+        setName(data?.name);
+        setLocation(data?.location);
+        setReview(data?.description);
+        setRating(data?.rating);
+        setPrice(data?.priceRange);
+        setSelectedFeatures(JSON.parse(data?.features || "[]"));
+        setSelectedCategories(JSON.parse(data?.categories || "[]"));
+      } catch (error) {
+        console.error("Error fetching restaurant data:", error);
+      }
+    };
+    fetchRestaurant();
+  }, [id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const userData = JSON.parse(localStorage.getItem("userData") || "");
+    if (!userData) {
+      navigate("/login");
+      return;
+    }
+
+    const token = userData.tokens.access_token;
+    const updatedRestaurant = {
+      name,
+      location,
+      review,
+      rating: rating ? rating : 4.5,
+      price: price ? priceMapping[price] : 1,
+      features: selectedFeatures,
+      categories: selectedCategories,
+      userId: userData?.user?.id || 0,
+    };
+
+    try {
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/api/restaurants/editRestaurant/${id}`,
+        updatedRestaurant,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Restaurant Updated Successfully");
+        navigate(`/restaurant/${id}`);
+      }
+    } catch (error) {
+      console.error("Error updating restaurant:", error);
+      toast.error("Failed to update restaurant.");
+    }
+  };
+
   return (
     <>
       <ScreenWrapper title="Edit Restaurant">
         <p className="font-poppins text-lg">
           <span className="text-red-500">*</span> required
         </p>
-        <div className="w-full lg:min-w-96 mx-auto  ">
+        <form className="w-full lg:min-w-96 mx-auto" onSubmit={handleSubmit}>
           <div className="mb-6">
             <label className="block text-lg font-bold mb-2 uppercase">
               Name
@@ -25,6 +103,8 @@ const EditRestaurant = () => {
               type="text"
               className="border-b border-grayDark w-full py-2 px-3 focus:outline-none"
               required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="mb-6">
@@ -35,6 +115,8 @@ const EditRestaurant = () => {
               type="text"
               className="border-b border-grayDark w-full py-2 px-3 focus:outline-none"
               required
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
             />
           </div>
           <div className="mb-6">
@@ -43,6 +125,8 @@ const EditRestaurant = () => {
             </label>
             <input
               type="text"
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
               className="border-b border-grayDark w-full py-2 px-3 focus:outline-none"
             />
           </div>
@@ -58,8 +142,9 @@ const EditRestaurant = () => {
               SVGstyle={{
                 display: "inline",
               }}
-              initialValue={4.5}
+              initialValue={rating}
               fillColor="#E0A961"
+              onClick={(rate) => setRating(rate)}
             />
           </div>
           {/* PRICE */}
@@ -103,13 +188,17 @@ const EditRestaurant = () => {
               onChange={setSelectedCategories}
             />
           </div>
-        </div>
+          <div className="overflow-hidden flex flex-col justify-center items-center w-full">
+            <button
+              type="submit"
+              className=" w-full lg:w-1/4  px-6 py-3 bg-primary hover:bg-secondary text-white font-bold "
+            >
+              SUBMIT
+            </button>
+            <Toaster richColors />
+          </div>
+        </form>
       </ScreenWrapper>
-      <div className="overflow-hidden flex flex-col justify-center items-center w-full">
-        <button className=" w-full lg:w-1/4  px-6 py-3 bg-primary hover:bg-secondary text-white font-bold ">
-          SUBMIT
-        </button>
-      </div>
     </>
   );
 };

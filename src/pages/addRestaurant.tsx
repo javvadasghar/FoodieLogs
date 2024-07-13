@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import ScreenWrapper from "../components/screenWrapper";
 import { Rating } from "react-simple-star-rating";
@@ -12,13 +12,12 @@ const AddRestaurant = () => {
   const [location, setLocation] = useState("");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
-  const [price, setPrice] = useState(Prices[0]); // Default to first price option
+  const [price, setPrice] = useState(Prices[0]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [userId, setUserId] = useState<number>(0);
   const navigate = useNavigate();
 
-  const priceMapping:any = {
+  const priceMapping: any = {
     $: 1,
     $$: 2,
     $$$: 3,
@@ -26,32 +25,29 @@ const AddRestaurant = () => {
   };
 
   const handleRating = (rate: any) => {
-    ;
     setRating(rate);
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    ;
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       navigate("/login");
       return;
     }
     const token = userData.tokens.access_token;
-
     const restaurantData = {
       name,
       location,
       review,
-      rating,
-      price: priceMapping[price], 
+      rating: rating ? rating : 4.5,
+      price: price ? priceMapping[price] : 1,
       features: selectedFeatures,
       categories: selectedCategories,
-      userId,
+      userId: userData?.user?.id,
     };
     try {
-      const response = await axios.post(
+      await axios.post(
         `${process.env.REACT_APP_API_URL}/api/restaurants/addRestaurant`,
         restaurantData,
         {
@@ -61,13 +57,10 @@ const AddRestaurant = () => {
           },
         }
       );
-      ;
       toast.success("Restaurant Added Successfully");
       navigate("/home");
-      // Handle success (e.g., redirect to a new page or show a success message)
     } catch (error) {
       console.error("There was an error adding the restaurant:", error);
-      // Handle error (e.g., show an error message)
     }
   };
   return (

@@ -17,6 +17,7 @@ import EditAccount from "./pages/editAccount";
 import SingleMenuItem from "./pages/singleMenuItem";
 import AddMenuItem from "./pages/addMenuItem";
 import DataProvider from "./provider/provider";
+import PrivateRoute from "./components/PrivateRoute";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -40,52 +41,52 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
-    element: <Home />,
+    element: <PrivateRoute element={<Home />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/addRestaurant",
-    element: <AddRestaurant />,
+    element: <PrivateRoute element={<AddRestaurant />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/restaurant/:id",
-    element: <Restaurant />,
+    element: <PrivateRoute element={<Restaurant />} />,
     errorElement: <NotFound />,
   },
   {
-    path: "/editMenuItem",
-    element: <EditMenuItem />,
+    path: "/editMenuItem/:id",
+    element: <PrivateRoute element={<EditMenuItem />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/termsAndConditions",
-    element: <TermsAndConditions />,
+    element: <PrivateRoute element={<TermsAndConditions />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/accountSettings",
-    element: <AccountSettings />,
+    element: <PrivateRoute element={<AccountSettings />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/editAccount",
-    element: <EditAccount />,
+    element: <PrivateRoute element={<EditAccount />} />,
     errorElement: <NotFound />,
   },
   {
-    path: "/editRestaurant",
-    element: <EditRestaurant />,
+    path: "/editRestaurant/:id",
+    element: <PrivateRoute element={<EditRestaurant />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/restaurants/:restaurantId/addMenuItem",
-    element: <AddMenuItem />,
+    element: <PrivateRoute element={<AddMenuItem />} />,
     errorElement: <NotFound />,
   },
   {
     path: "/menuItem",
-    element: <SingleMenuItem />,
+    element: <PrivateRoute element={<SingleMenuItem />} />,
     errorElement: <NotFound />,
   },
 ]);

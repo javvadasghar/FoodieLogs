@@ -18,13 +18,11 @@ const AddMenuItem: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    ;
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       navigate("/login");
       return;
     }
-    ;
     const token = userData.tokens.access_token;
     try {
       await axios.post(
@@ -32,8 +30,8 @@ const AddMenuItem: React.FC = () => {
         {
           name,
           review,
-          rating,
-          restaurantId: Number(restaurantId), // Replace with the actual restaurant ID as needed
+          rating: rating ? rating : 4.5,
+          restaurantId: Number(restaurantId),
         },
         {
           headers: {
