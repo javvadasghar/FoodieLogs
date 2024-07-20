@@ -20,7 +20,6 @@ const Restaurant: React.FC = () => {
   const [restaurant, setRestaurant] = useState<any>(null);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<FilterItem[]>([]);
   const [filterOption, setFilterOption] = useState("");
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const { id } = useParams<{ id: string }>();
@@ -35,7 +34,6 @@ const Restaurant: React.FC = () => {
       const params = new URLSearchParams();
       if (id) params.append("restaurantId", id);
       if (searchQuery) params.append("searchQuery", searchQuery);
-      if (filters.length > 0) params.append("filters", JSON.stringify(filters));
 
       const url = `${
         process.env.REACT_APP_API_URL
@@ -56,41 +54,76 @@ const Restaurant: React.FC = () => {
       }
     };
     fetchRestaurant();
-  }, [id]);
+  }, [id, searchQuery]);
 
-  const handleSearch = async () => {
-    const userData = JSON.parse(localStorage.getItem("userData") || "");
-    if (!userData) {
-      return;
-    }
-    const userId = userData?.user?.id;
-    const params = new URLSearchParams();
-    if (userId) params.append("userId", userId);
-    if (searchQuery) params.append("searchQuery", searchQuery);
-    if (filters.length > 0) params.append("filters", JSON.stringify(filters));
+  useEffect(() => {
+    const handleSearch = async () => {
+      const userData = JSON.parse(localStorage.getItem("userData") || "");
+      if (!userData) {
+        return;
+      }
+      const userId = userData?.user?.id;
+      const params = new URLSearchParams();
+      if (userId) params.append("userId", userId);
+      if (searchQuery) params.append("searchQuery", searchQuery);
 
-    const url = `${
-      process.env.REACT_APP_API_URL
-    }/api/menuItems/fetchMenuItems/?${params.toString()}`;
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const filteredData = response?.data?.data.filter(
-        (e: { restaurant: any | undefined }) => e?.restaurant?.id == id
-      );
-      setRestaurant(filteredData[0]?.restaurant);
-      setMenuItems(filteredData);
-    } catch (error) {
-      console.error("Error fetching restaurant data:", error);
-    }
-  };
+      // Construct URL with sorting options
+      let url = `${process.env.REACT_APP_API_URL}/api/menuItems/fetchMenuItems`;
+
+      // Append query parameters
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      // Apply sorting based on filterOption
+      if (filterOption) {
+        switch (filterOption) {
+          case "SORT A-Z":
+            url += `${
+              params.toString() ? "&" : "?"
+            }filterOption=alphabetical&filterOrder=ASC`;
+            break;
+          case "SORT Z-A":
+            url += `${
+              params.toString() ? "&" : "?"
+            }filterOption=alphabetical&filterOrder=DESC`;
+            break;
+          case "SORT RATING HIGH TO LOW":
+            url += `${
+              params.toString() ? "&" : "?"
+            }filterOption=rating&filterOrder=DESC`;
+            break;
+          case "SORT RATING LOW TO HIGH":
+            url += `${
+              params.toString() ? "&" : "?"
+            }filterOption=rating&filterOrder=ASC`;
+            break;
+          default:
+            break;
+        }
+      }
+
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const filteredData = response?.data?.data.filter(
+          (e: { restaurant: any | undefined }) => e?.restaurant?.id == id
+        );
+        setRestaurant(filteredData[0]?.restaurant);
+        setMenuItems(filteredData);
+      } catch (error) {
+        console.error("Error fetching restaurant data:", error);
+      }
+    };
+
+    handleSearch();
+  }, [filterOption, searchQuery, id]);
 
   const handleFilterChange = (option: string) => {
     setFilterOption(option);
-    handleSearch();
   };
 
   const handleLike = async () => {
@@ -179,7 +212,7 @@ const Restaurant: React.FC = () => {
               />
               <FaSearch
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary text-xl cursor-pointer"
-                onClick={handleSearch}
+                onClick={() => setSearchQuery(searchQuery)}
               />
             </div>
           </div>
