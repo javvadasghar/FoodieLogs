@@ -16,7 +16,6 @@ import EditRestaurant from "./pages/editRestaurant";
 import EditAccount from "./pages/editAccount";
 import SingleMenuItem from "./pages/singleMenuItem";
 import AddMenuItem from "./pages/addMenuItem";
-import DataProvider from "./provider/provider";
 import PrivateRoute from "./components/PrivateRoute";
 
 const root = ReactDOM.createRoot(
@@ -93,8 +92,6 @@ const router = createBrowserRouter([
 
 root.render(
   <React.StrictMode>
-    <DataProvider>
       <RouterProvider router={router} />
-    </DataProvider>
   </React.StrictMode>
 );

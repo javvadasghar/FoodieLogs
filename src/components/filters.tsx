@@ -4,16 +4,23 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 interface FilterProps {
   options: string[];
   filterTitle?: string;
+  onFilterChange: (option: string) => void;
 }
 
 const CustomFilterDropdown: React.FC<FilterProps> = ({
   options,
   filterTitle = "FILTER",
+  onFilterChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleOptionClick = (option: string) => {
+    onFilterChange(option);
+    setIsOpen(false);
   };
 
   return (
@@ -46,6 +53,7 @@ const CustomFilterDropdown: React.FC<FilterProps> = ({
               <div
                 key={index}
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer font-bold text-primary text-center"
+                onClick={() => handleOptionClick(option)}
               >
                 {option}
               </div>

@@ -6,19 +6,40 @@ type FilterOption = {
   [key: string]: string[];
 };
 
-const SelectBoxFilters: React.FC = () => {
+type FilterItem = {
+  type: string;
+  value: string;
+};
+
+interface SelectBoxFiltersProps {
+  setFilters: React.Dispatch<React.SetStateAction<FilterItem[]>>;
+}
+
+const SelectBoxFilters: React.FC<SelectBoxFiltersProps> = ({ setFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>("");
-  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [selectedOptions, setSelectedOptions] = useState<{
+    [key: string]: string;
+  }>({});
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleOptionClick = (filter: string, option: string) => {
+    const filterType = filter.toLowerCase();
+    const updatedOptions = { ...selectedOptions, [filterType]: option };
+    setSelectedOptions(updatedOptions);
+    const filtersArray = Object.entries(updatedOptions).map(
+      ([type, value]) => ({ type, value })
+    );
+    setFilters(filtersArray);
+  };
+
   const filters: string[] = ["CATEGORY", "LOCATION", "FEATURES", "PRICE"];
   const options: FilterOption = {
     CATEGORY: Category,
-    LOCATION: ["Option A", "Option B", "Option C"], // Assuming LOCATION options are static
+    LOCATION: ["Option A", "Option B", "Option C"],
     FEATURES: Features,
     PRICE: Prices,
   };
@@ -48,7 +69,6 @@ const SelectBoxFilters: React.FC = () => {
         }`}
       >
         {isOpen && (
-          //  insert code here
           <div className="p-4 flex flex-col items-center">
             <div className="flex flex-wrap justify-center gap-3 mb-4">
               {filters.map((filter) => (
@@ -72,11 +92,11 @@ const SelectBoxFilters: React.FC = () => {
                   <button
                     key={option}
                     className={`py-2 px-6 rounded-full max-h-12 ${
-                      selectedOption === option
+                      selectedOptions[selectedFilter.toLowerCase()] === option
                         ? "bg-primary text-white border border-primary"
                         : "text-customBlack bg-white bg-opacity-75"
                     }`}
-                    onClick={() => setSelectedOption(option)}
+                    onClick={() => handleOptionClick(selectedFilter, option)}
                   >
                     {option}
                   </button>

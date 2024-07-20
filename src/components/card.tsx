@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa6";
 import { GoHeart, GoHeartFill } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import { Toaster, toast } from "sonner";
 
 interface CardProps {
   id: number;
@@ -13,11 +15,14 @@ interface CardProps {
   itemCount?: number;
   link: string;
   restaurantId: number;
+  favourite: boolean;
   styleExternalWidth?: string;
+  updateFavoriteStatus: (restaurantId: number, isLiked: boolean) => void;
 }
 
 const Card: React.FC<CardProps> = ({
   id,
+  favourite,
   title,
   location,
   review,
@@ -25,13 +30,61 @@ const Card: React.FC<CardProps> = ({
   itemCount,
   restaurantId,
   styleExternalWidth,
-  
+  updateFavoriteStatus,
 }) => {
-  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(favourite);
   const navigate = useNavigate();
-  const handleLike = () => {
-    setIsLiked((prevState) => !prevState);
+
+  useEffect(() => {
+    setIsLiked(favourite);
+  }, [favourite]);
+
+  const handleLike = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "");
+    if (!userData) {
+      console.error("User is not logged in.");
+      return;
+    }
+
+    const token = userData.tokens.access_token;
+    const Removeurl = `${process.env.REACT_APP_API_URL}/api/restaurants/removeFavouriteRestaurant/${restaurantId}`;
+    const Addurl = `${process.env.REACT_APP_API_URL}/api/restaurants/favouriteARestaurant/${restaurantId}`;
+    try {
+      if (isLiked) {
+        await axios.post(
+          Removeurl,
+          { restaurantId },
+          {
+            headers: {
+              "Content-Type": "*",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsLiked(false);
+        toast.success("Restaurant Removed from Favourites!");
+        updateFavoriteStatus(restaurantId, false);
+      } else {
+        await axios.post(
+          Addurl,
+          { restaurantId },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsLiked(true);
+        toast.success("Restaurant Added to Favourites!");
+        updateFavoriteStatus(restaurantId, true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred. Please try again.");
+    }
   };
+
   const handleArrowClick = () => {
     navigate(`/restaurant/${restaurantId}`);
   };
@@ -41,11 +94,11 @@ const Card: React.FC<CardProps> = ({
       key={Math.random() * 10}
       className={`mb-4 bg-[#FFFFFFE6] bg-opacity-85 rounded-2xl shadow-lg ${
         styleExternalWidth ?? "w-full"
-      }   lg:w-1/2 p-3 overflow-hidden`}
+      } lg:w-1/2 p-3 overflow-hidden`}
     >
-      <div className="flex flex-row justify-between font-poppins ">
+      <div className="flex flex-row justify-between font-poppins">
         {/*--- 1st column --- */}
-        <div className="flex flex-col  w-5/6">
+        <div className="flex flex-col w-5/6">
           <div className="flex flex-row justify-start items-start gap-2">
             {isLiked ? (
               <GoHeartFill
@@ -65,7 +118,7 @@ const Card: React.FC<CardProps> = ({
               <p className="text-sm my-1">{location}</p>
             </div>
           </div>
-          <p className="mt-2 text-sm my-3 px-2  overflow-auto line-clamp-2 xl:line-clamp-3 ">
+          <p className="mt-2 text-sm my-3 px-2 overflow-auto line-clamp-2 xl:line-clamp-3">
             {review}
           </p>
         </div>
@@ -76,7 +129,7 @@ const Card: React.FC<CardProps> = ({
             <FaStar className="text-gold" size={22} />
             <p className="text-lg">{rating}</p>
           </div>
-          <p className=" whitespace-nowrap">{itemCount} items</p>
+          <p className="whitespace-nowrap">{itemCount} items</p>
           <FaArrowRight
             className="text-primary border-2 border-grayDark rounded-full p-3 cursor-pointer"
             size={50}
@@ -84,6 +137,7 @@ const Card: React.FC<CardProps> = ({
           />
         </div>
       </div>
+      <Toaster richColors />
     </div>
   );
 };

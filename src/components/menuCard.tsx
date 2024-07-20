@@ -1,8 +1,10 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa6";
 import { GoHeart, GoHeartFill } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
+import { Toaster, toast } from "sonner";
 
 interface CardProps {
   id: number;
@@ -14,6 +16,7 @@ interface CardProps {
   link: string;
   restaurantId: number;
   styleExternalWidth?: string;
+  isLiked: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -23,14 +26,53 @@ const Card: React.FC<CardProps> = ({
   review,
   rating,
   styleExternalWidth,
+  isLiked: initialLiked,
 }) => {
-  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(initialLiked);
   const navigate = useNavigate();
-  const handleLike = () => {
-    setIsLiked((prevState) => !prevState);
-  };
   const handleArrowClick = () => {
     navigate(`/editMenuItem/${id}`);
+  };
+
+  const handleLike = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "");
+    if (!userData) {
+      console.error("User is not logged in.");
+      return;
+    }
+    const params = new URLSearchParams();
+    const userId = userData?.user?.id;
+    const postData = {
+      userId: userId,
+      menuItemId: id,
+    };
+    const token = userData.tokens.access_token;
+    const Addurl = `${process.env.REACT_APP_API_URL}/api/menuItems/favouriteAMenuItem${id}/${userId}`;
+    const Removeurl = `${process.env.REACT_APP_API_URL}/api/menuItems/removeFavouriteMenuItem${id}/${userId}`;
+    try {
+      if (isLiked) {
+        await axios.post(Removeurl, postData, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setIsLiked(false);
+        toast.success("Menu Item Removed from Favourites!");
+      } else {
+        await axios.post(Addurl, postData, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setIsLiked(true);
+        toast.success("Menu Item Added to Favourites!");
+      }
+    } catch (error) {
+      console.error("Error liking/unliking the menu item:", error);
+      toast.error("Error liking/unliking the menu item");
+    }
   };
 
   return (
@@ -44,19 +86,19 @@ const Card: React.FC<CardProps> = ({
         {/*--- 1st column --- */}
         <div className="flex flex-col  w-5/6">
           <div className="flex flex-row justify-start items-start gap-2">
-            {isLiked ? (
-              <GoHeartFill
-                onClick={handleLike}
-                size={25}
-                className="text-[#C12121] cursor-pointer border-[#ECECEA] my-1"
-              />
-            ) : (
-              <GoHeart
-                size={25}
-                className="text-[#B1B3B6] cursor-pointer hover:text-[#C12121] my-1"
-                onClick={handleLike}
-              />
-            )}
+            <div onClick={handleLike} className="cursor-pointer">
+              {isLiked ? (
+                <GoHeartFill
+                  size={25}
+                  className="text-[#C12121] cursor-pointer border-[#ECECEA] my-1"
+                />
+              ) : (
+                <GoHeart
+                  size={25}
+                  className="text-[#B1B3B6] cursor-pointer hover:text-[#C12121] my-1"
+                />
+              )}
+            </div>
             <div className="flex flex-col justify-start">
               <p className="text-2xl font-bold">{title}</p>
               <p className="text-sm my-1">{location}</p>

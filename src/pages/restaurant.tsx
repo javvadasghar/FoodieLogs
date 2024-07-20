@@ -8,20 +8,49 @@ import { BiSolidPencil } from "react-icons/bi";
 import { Link, useParams } from "react-router-dom";
 import "../../src/index.css";
 import axios from "axios";
+import { Toaster, toast } from "sonner";
+
+type FilterItem = {
+  type: string;
+  value: string;
+};
 
 const Restaurant: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState("Menu");
-
   const [restaurant, setRestaurant] = useState<any>(null);
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FilterItem[]>([]);
+  const [filterOption, setFilterOption] = useState("");
+  const [isLiked, setIsLiked] = useState<boolean>(false);
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     const fetchRestaurant = async () => {
+      const userData = JSON.parse(localStorage.getItem("userData") || "");
+      if (!userData) {
+        return;
+      }
+      const token = userData.tokens.access_token;
+      const params = new URLSearchParams();
+      if (id) params.append("restaurantId", id);
+      if (searchQuery) params.append("searchQuery", searchQuery);
+      if (filters.length > 0) params.append("filters", JSON.stringify(filters));
+
+      const url = `${
+        process.env.REACT_APP_API_URL
+      }/api/menuItems/fetchRestaurantMenuItems/${id}?${params.toString()}`;
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/restaurants/fetchRestaurant/${id}`
-        );
-        setRestaurant(response?.data?.data?.restaurant);
+        const response = await axios.get(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const restaurantData = response?.data?.data[0]?.restaurant;
+        setRestaurant(restaurantData);
+        setIsLiked(restaurantData?.favouritedByUser?.length > 0);
+        setMenuItems(response?.data?.data);
       } catch (error) {
         console.error("Error fetching restaurant data:", error);
       }
@@ -29,12 +58,92 @@ const Restaurant: React.FC = () => {
     fetchRestaurant();
   }, [id]);
 
-  if (!restaurant) {
-    return <div></div>;
-  }
+  const handleSearch = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "");
+    if (!userData) {
+      return;
+    }
+    const userId = userData?.user?.id;
+    const params = new URLSearchParams();
+    if (userId) params.append("userId", userId);
+    if (searchQuery) params.append("searchQuery", searchQuery);
+    if (filters.length > 0) params.append("filters", JSON.stringify(filters));
+
+    const url = `${
+      process.env.REACT_APP_API_URL
+    }/api/menuItems/fetchMenuItems/?${params.toString()}`;
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const filteredData = response?.data?.data.filter(
+        (e: { restaurant: any | undefined }) => e?.restaurant?.id == id
+      );
+      setRestaurant(filteredData[0]?.restaurant);
+      setMenuItems(filteredData);
+    } catch (error) {
+      console.error("Error fetching restaurant data:", error);
+    }
+  };
+
+  const handleFilterChange = (option: string) => {
+    setFilterOption(option);
+    handleSearch();
+  };
+
+  const handleLike = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "");
+    if (!userData) {
+      console.error("User is not logged in.");
+      return;
+    }
+
+    const token = userData.tokens.access_token;
+    const Removeurl = `${process.env.REACT_APP_API_URL}/api/restaurants/removeFavouriteRestaurant/${id}`;
+    const Addurl = `${process.env.REACT_APP_API_URL}/api/restaurants/favouriteARestaurant/${id}`;
+    try {
+      if (isLiked) {
+        await axios.post(
+          Removeurl,
+          { restaurantId: id },
+          {
+            headers: {
+              "Content-Type": "*",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsLiked(false);
+        toast.success("Restaurant Removed from Favourites!");
+      } else {
+        await axios.post(
+          Addurl,
+          { restaurantId: id },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setIsLiked(true);
+        toast.success("Restaurant Added to Favourites!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An error occurred. Please try again.");
+    }
+  };
 
   return (
-    <ScreenWrapper title={restaurant.name} isHeartVisible={true}>
+    <ScreenWrapper
+      title={restaurant?.name}
+      isHeartVisible={true}
+      handleLike={handleLike}
+      isLiked={isLiked}
+    >
       <div className="flex flex-row">
         {/* Menu Button */}
         <div
@@ -63,10 +172,15 @@ const Restaurant: React.FC = () => {
             <div className="relative flex-grow">
               <input
                 type="text"
-                placeholder="Search Your Restaurants"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search a Menu Item"
                 className="w-full pl-4 pr-10 py-3 border rounded-full border-gray-300 focus:outline-none focus:border-primary"
               />
-              <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary text-xl" />
+              <FaSearch
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary text-xl cursor-pointer"
+                onClick={handleSearch}
+              />
             </div>
           </div>
           {/* CUSTOM FILTER */}
@@ -78,33 +192,32 @@ const Restaurant: React.FC = () => {
               "SORT RATING HIGH TO LOW",
               "SORT RATING LOW TO HIGH",
             ]}
+            onFilterChange={handleFilterChange}
           />
           {/* Menu items */}
           <div className="flex flex-col justify-center items-center">
             <div className="relative flex flex-col items-center overflow-y-scroll bg-cover bg-center h-full">
-              {restaurant &&
-                restaurant?.menuItems.map((item: any) => (
+              {menuItems &&
+                menuItems.map((item: any) => (
                   <Card
                     key={item.id}
                     id={item.id}
                     title={item.name}
                     review={item.review}
                     rating={item.rating}
-                    restaurantId={item.id}
+                    restaurantId={item?.id}
+                    isLiked={item.favoritedBy.length > 0}
                     link="#"
                     styleExternalWidth="lg:w-full border-2 border-greyDark"
                   />
                 ))}
               {/* Add Restaurant Button */}
               <Link
-                className="w-full xl:w-2/4 py-3 bg-primary hover:bg-secondary text-white font-bold text-center"
+                className="w-full xl:w-4/4 py-3 px-3 bg-primary hover:bg-secondary text-white font-bold text-center"
                 to={`/restaurants/${id}/addMenuItem`}
               >
                 Add Menu Item
               </Link>
-              {/* <button className="w-full xl:w-2/4 py-3 bg-primary hover:bg-secondary text-white font-bold">
-                Add Menu Item
-              </button> */}
             </div>
           </div>
         </>
@@ -145,6 +258,7 @@ const Restaurant: React.FC = () => {
           </div>
         </>
       )}
+      <Toaster richColors />
     </ScreenWrapper>
   );
 };

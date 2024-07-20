@@ -8,7 +8,8 @@ interface ScreenWrapperProps {
   titleSize?: string;
   children?: React.ReactNode;
   isHeartVisible?: boolean;
-  isHeartFilled?: boolean;
+  isLiked?: boolean;
+  handleLike?: () => void;
 }
 
 const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
@@ -16,13 +17,10 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
   titleSize,
   children,
   isHeartVisible = false,
-  isHeartFilled,
+  isLiked,
+  handleLike,
 }) => {
-  const [heartFilled, setHeartFilled] = useState(isHeartFilled);
   const navigate = useNavigate();
-  const handleLike = () => {
-    setHeartFilled(!heartFilled);
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen overflow-hidden">
@@ -43,9 +41,9 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
             >
               {title}
             </h1>
-            {isHeartVisible && (
+            {isHeartVisible && handleLike && (
               <div className="ml-4">
-                {heartFilled ? (
+                {isLiked ? (
                   <GoHeartFill
                     onClick={handleLike}
                     size={25}

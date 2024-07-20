@@ -4,7 +4,7 @@ import { Rating } from "react-simple-star-rating";
 
 const SingleMenuItem: React.FC = () => {
   return (
-    <ScreenWrapper title="Whopper" isHeartVisible={true} isHeartFilled={true}>
+    <ScreenWrapper title="Whopper" isHeartVisible={true}>
       {/* Menu items */}
 
       {/* About */}
