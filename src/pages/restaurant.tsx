@@ -10,11 +10,6 @@ import "../../src/index.css";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
 
-type FilterItem = {
-  type: string;
-  value: string;
-};
-
 const Restaurant: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState("Menu");
   const [restaurant, setRestaurant] = useState<any>(null);
@@ -110,7 +105,7 @@ const Restaurant: React.FC = () => {
           },
         });
         const filteredData = response?.data?.data.filter(
-          (e: { restaurant: any | undefined }) => e?.restaurant?.id == id
+          (e: { restaurant: any | undefined }) => e?.restaurant?.id === id
         );
         setRestaurant(filteredData[0]?.restaurant);
         setMenuItems(filteredData);

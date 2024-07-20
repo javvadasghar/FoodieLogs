@@ -40,7 +40,6 @@ const Card: React.FC<CardProps> = ({
       console.error("User is not logged in.");
       return;
     }
-    const params = new URLSearchParams();
     const userId = userData?.user?.id;
     const postData = {
       userId: userId,
@@ -121,6 +120,7 @@ const Card: React.FC<CardProps> = ({
             onClick={handleArrowClick}
           />
         </div>
+        <Toaster richColors />
       </div>
     </div>
   );

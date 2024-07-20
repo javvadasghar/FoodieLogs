@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { MdArrowBackIosNew } from "react-icons/md";
 import { GoHeart, GoHeartFill } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
