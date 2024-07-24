@@ -22,6 +22,10 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen overflow-hidden">
       {/* banner container */}
@@ -30,7 +34,7 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
         <div className="w-10/12 md:w-1/2 lg:w-1/3 xl:w-1/4 flex flex-col justify-center items-center gap-5 px-3">
           <div className="flex items-center my-10">
             <MdArrowBackIosNew
-              onClick={() => navigate("/home")}
+              onClick={handleBackClick}
               size={26}
               className="text-black text-3xl mr-4"
             />

@@ -21,14 +21,14 @@ const Restaurant: React.FC = () => {
 
   useEffect(() => {
     handleSearch();
-  }, [filterOption, searchQuery]); // Added searchQuery dependency
+  }, [filterOption, searchQuery]);
 
   const handleSearch = async () => {
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       return;
     }
-    
+
     const userId = userData?.user?.id;
     const params = new URLSearchParams();
     if (id) params.append("restaurantId", id);
@@ -79,6 +79,9 @@ const Restaurant: React.FC = () => {
       });
 
       setRestaurant(response?.data?.data?.restaurant);
+      if (response?.data?.data?.restaurant?.favouritedByUser.length > 0) {
+        setIsLiked(true);
+      }
       setMenuItems(response?.data?.data?.menuItems);
     } catch (error) {
       console.error("Error fetching restaurant data:", error);
@@ -134,7 +137,7 @@ const Restaurant: React.FC = () => {
   };
 
   const handleSearchClick = () => {
-    handleSearch(); // Trigger search on click
+    handleSearch();
   };
 
   return (
