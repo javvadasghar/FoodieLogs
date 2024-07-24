@@ -20,102 +20,70 @@ const Restaurant: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    const fetchRestaurant = async () => {
-      const userData = JSON.parse(localStorage.getItem("userData") || "");
-      if (!userData) {
-        return;
-      }
-      const token = userData.tokens.access_token;
-      const params = new URLSearchParams();
-      if (id) params.append("restaurantId", id);
-      if (searchQuery) params.append("searchQuery", searchQuery);
-
-      const url = `${
-        process.env.REACT_APP_API_URL
-      }/api/menuItems/fetchRestaurantMenuItems/${id}?${params.toString()}`;
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const restaurantData = response?.data?.data[0]?.restaurant;
-        setRestaurant(restaurantData);
-        setIsLiked(restaurantData?.favouritedByUser?.length > 0);
-        setMenuItems(response?.data?.data);
-      } catch (error) {
-        console.error("Error fetching restaurant data:", error);
-      }
-    };
-    fetchRestaurant();
-  }, [id, searchQuery]);
-
-  useEffect(() => {
-    const handleSearch = async () => {
-      const userData = JSON.parse(localStorage.getItem("userData") || "");
-      if (!userData) {
-        return;
-      }
-      const userId = userData?.user?.id;
-      const params = new URLSearchParams();
-      if (userId) params.append("userId", userId);
-      if (searchQuery) params.append("searchQuery", searchQuery);
-
-      // Construct URL with sorting options
-      let url = `${process.env.REACT_APP_API_URL}/api/menuItems/fetchMenuItems`;
-
-      // Append query parameters
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-
-      // Apply sorting based on filterOption
-      if (filterOption) {
-        switch (filterOption) {
-          case "SORT A-Z":
-            url += `${
-              params.toString() ? "&" : "?"
-            }filterOption=alphabetical&filterOrder=ASC`;
-            break;
-          case "SORT Z-A":
-            url += `${
-              params.toString() ? "&" : "?"
-            }filterOption=alphabetical&filterOrder=DESC`;
-            break;
-          case "SORT RATING HIGH TO LOW":
-            url += `${
-              params.toString() ? "&" : "?"
-            }filterOption=rating&filterOrder=DESC`;
-            break;
-          case "SORT RATING LOW TO HIGH":
-            url += `${
-              params.toString() ? "&" : "?"
-            }filterOption=rating&filterOrder=ASC`;
-            break;
-          default:
-            break;
-        }
-      }
-
-      try {
-        const response = await axios.get(url, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const filteredData = response?.data?.data.filter(
-          (e: { restaurant: any | undefined }) => e?.restaurant?.id === id
-        );
-        setRestaurant(filteredData[0]?.restaurant);
-        setMenuItems(filteredData);
-      } catch (error) {
-        console.error("Error fetching restaurant data:", error);
-      }
-    };
-
     handleSearch();
-  }, [filterOption, searchQuery, id]);
+  }, [filterOption, searchQuery]); // Added searchQuery dependency
+
+  const handleSearch = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData") || "");
+    if (!userData) {
+      return;
+    }
+    
+    const userId = userData?.user?.id;
+    const params = new URLSearchParams();
+    if (id) params.append("restaurantId", id);
+    if (userId) params.append("userId", userId);
+    if (searchQuery) params.append("searchQuery", searchQuery);
+
+    // Construct URL with sorting options
+    let url = `${process.env.REACT_APP_API_URL}/api/menuItems/fetchRestaurantMenuItems/${id}`;
+
+    // Append query parameters
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    // Apply sorting based on filterOption
+    if (filterOption) {
+      switch (filterOption) {
+        case "SORT A-Z":
+          url += `${
+            params.toString() ? "&" : "?"
+          }filterOption=alphabetical&filterOrder=ASC`;
+          break;
+        case "SORT Z-A":
+          url += `${
+            params.toString() ? "&" : "?"
+          }filterOption=alphabetical&filterOrder=DESC`;
+          break;
+        case "SORT RATING HIGH TO LOW":
+          url += `${
+            params.toString() ? "&" : "?"
+          }filterOption=rating&filterOrder=DESC`;
+          break;
+        case "SORT RATING LOW TO HIGH":
+          url += `${
+            params.toString() ? "&" : "?"
+          }filterOption=rating&filterOrder=ASC`;
+          break;
+        default:
+          break;
+      }
+    }
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      setRestaurant(response?.data?.data?.restaurant);
+      setMenuItems(response?.data?.data?.menuItems);
+    } catch (error) {
+      console.error("Error fetching restaurant data:", error);
+    }
+  };
 
   const handleFilterChange = (option: string) => {
     setFilterOption(option);
@@ -165,6 +133,10 @@ const Restaurant: React.FC = () => {
     }
   };
 
+  const handleSearchClick = () => {
+    handleSearch(); // Trigger search on click
+  };
+
   return (
     <ScreenWrapper
       title={restaurant?.name}
@@ -207,7 +179,7 @@ const Restaurant: React.FC = () => {
               />
               <FaSearch
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary text-xl cursor-pointer"
-                onClick={() => setSearchQuery(searchQuery)}
+                onClick={handleSearchClick}
               />
             </div>
           </div>
@@ -223,8 +195,8 @@ const Restaurant: React.FC = () => {
             onFilterChange={handleFilterChange}
           />
           {/* Menu items */}
-          <div className="flex flex-col justify-center items-center">
-            <div className="relative flex flex-col items-center overflow-y-scroll bg-cover bg-center h-full">
+          <div className="flex flex-col justify-center w-full items-center">
+            <div className="relative flex flex-col items-center overflow-y-scroll bg-cover w-full bg-center h-full">
               {menuItems &&
                 menuItems.map((item: any) => (
                   <Card

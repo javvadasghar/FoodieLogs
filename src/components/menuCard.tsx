@@ -77,7 +77,7 @@ const Card: React.FC<CardProps> = ({
   return (
     <div
       key={Math.random() * 10}
-      className={`mb-4 bg-[#FFFFFFE6] bg-opacity-85 rounded-2xl shadow-lg ${
+      className={`mb-4 bg-[#FFFFFFE6] bg-opacity-85 rounded-2xl shadow-lg w-full ${
         styleExternalWidth ?? "w-full"
       }   lg:w-1/2 p-3 overflow-hidden`}
     >

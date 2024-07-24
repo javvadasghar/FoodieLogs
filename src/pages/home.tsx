@@ -125,7 +125,7 @@ const Home = () => {
               />
             ))}
           <a
-            className="w-full text-center xl:w-3/4 py-3 bg-primary hover:bg-secondary text-white font-bold sticky bottom-0 mb-0"
+            className="w-full text-center xl:w-1/4 py-3 bg-primary hover:bg-secondary text-white font-bold sticky bottom-0 mb-0"
             href="/addRestaurant"
           >
             Add Restaurant
