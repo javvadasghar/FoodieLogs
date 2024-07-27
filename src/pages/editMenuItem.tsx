@@ -4,16 +4,20 @@ import { Rating } from "react-simple-star-rating";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
+import Loader from "../components/loader"; // Import the Loader component
 
 const EditMenuItem: React.FC = () => {
   const [menuItem, setmenuItem] = useState<any>(null);
   const [name, setName] = useState("");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Add loading state
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchMenuItem = async () => {
+      setIsLoading(true); // Set loading to true when starting the fetch request
       const userData = JSON.parse(localStorage.getItem("userData") || "");
       if (!userData) {
         navigate("/login");
@@ -37,6 +41,8 @@ const EditMenuItem: React.FC = () => {
         setReview(response?.data?.data?.review);
       } catch (error) {
         console.error("Error fetching restaurant data:", error);
+      } finally {
+        setIsLoading(false); // Set loading to false after the fetch request completes
       }
     };
     fetchMenuItem();
@@ -44,6 +50,7 @@ const EditMenuItem: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true); // Set loading to true when starting the update request
     const userData = JSON.parse(localStorage.getItem("userData") || "{}");
     const token = userData.tokens.access_token;
 
@@ -72,11 +79,14 @@ const EditMenuItem: React.FC = () => {
     } catch (error) {
       console.error("Error updating menu item:", error);
       toast.error("Failed to update menu item.");
+    } finally {
+      setIsLoading(false); // Set loading to false after the update request completes
     }
   };
 
   return (
     <>
+      {isLoading && <Loader />} {/* Show loader when loading */}
       <ScreenWrapper title="Edit Menu Item">
         <p className="font-poppins text-lg">
           <span className="text-red-500">*</span> required

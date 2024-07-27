@@ -3,6 +3,7 @@ import axios from "axios";
 import { MdArrowBackIosNew } from "react-icons/md";
 import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import Loader from "../components/loader"; // Import the Loader component
 
 const EditAccount: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +11,7 @@ const EditAccount: React.FC = () => {
   const [existingPassword, setExistingPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +22,11 @@ const EditAccount: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword && newPassword === confirmNewPassword && !existingPassword) {
+    if (
+      newPassword &&
+      newPassword === confirmNewPassword &&
+      !existingPassword
+    ) {
       toast.error("Please enter Existing Password");
       return;
     }
@@ -49,6 +55,8 @@ const EditAccount: React.FC = () => {
       payload.newPassword = newPassword;
     }
 
+    setIsLoading(true); // Set loading to true when starting the update process
+
     try {
       const response = await axios.patch(
         `${process.env.REACT_APP_API_URL}/api/users/updateProfile`,
@@ -71,11 +79,14 @@ const EditAccount: React.FC = () => {
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile.");
+    } finally {
+      setIsLoading(false); // Set loading to false after the update process completes
     }
   };
 
   return (
     <>
+      {isLoading && <Loader />} {/* Show loader when loading */}
       <div className="flex flex-col items-center justify-center min-h-screen font-poppins mx-3">
         {/* Logo */}
         <div className="flex justify-center mb-8">
@@ -97,8 +108,6 @@ const EditAccount: React.FC = () => {
           className="flex flex-col space-y-12 w-full max-w-xs my-8"
           onSubmit={handleSubmit}
         >
-          {" "}
-          {/* Adjusted margin bottom */}
           <div className="flex flex-col">
             <label htmlFor="username" className="text-black font-bold text-lg">
               USERNAME
@@ -168,9 +177,7 @@ const EditAccount: React.FC = () => {
               className="border-b border-gray-300 focus:outline-none focus:border-primary"
             />
           </div>
-          <div className="overflow-hidden hidden justify-center w-full  lg:flex">
-            {" "}
-            {/* Adjusted margin bottom */}
+          <div className="overflow-hidden hidden justify-center w-full lg:flex">
             <button className="w-full px-6 py-3 bg-primary hover:bg-secondary text-white font-bold">
               SUBMIT
             </button>

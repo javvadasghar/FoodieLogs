@@ -3,13 +3,16 @@ import { MdArrowBackIosNew } from "react-icons/md";
 import { Toaster, toast } from "sonner";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import Loader from "../components/loader"; // Import the Loader component
 
 const SignUp: React.FC = () => {
   const [userName, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
+  
   interface ErrorResponse {
     message: string;
   }
@@ -20,6 +23,8 @@ const SignUp: React.FC = () => {
       toast.error("Passwords do not match");
       return;
     }
+
+    setIsLoading(true); // Set loading to true when starting the signup process
 
     try {
       const response = await fetch(
@@ -36,9 +41,10 @@ const SignUp: React.FC = () => {
       if (!response.ok) {
         const responseData = await response.json();
         toast.error(responseData.message);
-
+        setIsLoading(false); // Set loading to false if the response is not okay
         return;
       }
+
       toast.success("User Created Successfully");
       navigate("/home");
     } catch (err) {
@@ -46,11 +52,14 @@ const SignUp: React.FC = () => {
       toast.error(
         error.response?.data?.message || "An error occurred. Please try again."
       );
+    } finally {
+      setIsLoading(false); // Set loading to false after the signup process completes
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
+      {isLoading && <Loader />} {/* Show loader when loading */}
       {/* banner container */}
       <div className="container flex flex-col justify-center items-center w-full my-6">
         <img src="logo.png" alt="main" />

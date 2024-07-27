@@ -4,10 +4,12 @@ import { MdArrowBackIosNew } from "react-icons/md";
 import Button from "../components/button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Loader from "../components/loader"; // Import the Loader component
 
 const AccountSettings: React.FC = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,9 +19,11 @@ const AccountSettings: React.FC = () => {
   }, []);
 
   const handleLogout = async () => {
+    setIsLoading(true); // Set loading to true when starting the logout process
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       navigate("/login");
+      setIsLoading(false); // Set loading to false if no user data is found
       return;
     }
 
@@ -39,26 +43,30 @@ const AccountSettings: React.FC = () => {
       navigate("/login");
     } catch (error) {
       console.error("Error logging out:", error);
+    } finally {
+      setIsLoading(false); // Set loading to false after the logout process completes
     }
   };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen font-poppins mx-8 ">
+    <div className="flex flex-col items-center justify-center min-h-screen font-poppins mx-8">
+      {isLoading && <Loader />} {/* Show loader when loading */}
       {/* Logo */}
       <img
         src="logo.png"
         alt="main"
         width={400}
         height={400}
-        className=" my-6"
+        className="my-6"
       />
 
       {/* Container for Arrow and User Details */}
-      <div className="w-full lg:w-2/5 xl:w-1/5 ">
+      <div className="w-full lg:w-2/5 xl:w-1/5">
         <div className="flex items-center mb-6 gap-10">
           <MdArrowBackIosNew
             onClick={() => navigate("/home")}
             size={26}
-            className="text-black  "
+            className="text-black"
           />
           <h1 className="text-2xl xl:text-3xl font-bold text-center">
             Account Settings
@@ -96,9 +104,9 @@ const AccountSettings: React.FC = () => {
         className="my-8 inline-block lg:w-1/5 bg-primary text-white font-bold font-poppins px-6 py-3 rounded-full w-full hover:bg-secondary transition-colors duration-300"
         onClick={handleLogout}
       >
-        Log out{" "}
+        Log out
       </button>
-      <Button styles=" lg:w-1/5" text="CONTACT SUPPORT" />
+      <Button styles="lg:w-1/5" text="CONTACT SUPPORT" />
     </div>
   );
 };

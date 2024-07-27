@@ -6,6 +6,7 @@ import { Rating } from "react-simple-star-rating";
 import SelectBoxes from "../components/selectBox";
 import { Prices, Features, Category } from "../data";
 import { Toaster, toast } from "sonner";
+import Loader from "../components/loader"; // Import the Loader component
 
 const EditRestaurant = () => {
   const [name, setName] = useState("");
@@ -15,6 +16,7 @@ const EditRestaurant = () => {
   const [price, setPrice] = useState(Prices[0]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Add loading state
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -34,6 +36,7 @@ const EditRestaurant = () => {
 
   useEffect(() => {
     const fetchRestaurant = async () => {
+      setIsLoading(true); // Set loading to true when starting the fetch request
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/restaurants/fetchRestaurant/${id}`
@@ -48,6 +51,8 @@ const EditRestaurant = () => {
         setSelectedCategories(JSON.parse(data?.categories || "[]"));
       } catch (error) {
         console.error("Error fetching restaurant data:", error);
+      } finally {
+        setIsLoading(false); // Set loading to false after the fetch request completes
       }
     };
     fetchRestaurant();
@@ -55,6 +60,7 @@ const EditRestaurant = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true); // Set loading to true when starting the update request
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       navigate("/login");
@@ -91,11 +97,14 @@ const EditRestaurant = () => {
     } catch (error) {
       console.error("Error updating restaurant:", error);
       toast.error("Failed to update restaurant.");
+    } finally {
+      setIsLoading(false); // Set loading to false after the update request completes
     }
   };
 
   return (
     <>
+      {isLoading && <Loader />} {/* Show loader when loading */}
       <ScreenWrapper title="Edit Restaurant">
         <p className="font-poppins text-lg">
           <span className="text-red-500">*</span> required

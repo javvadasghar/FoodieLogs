@@ -4,12 +4,14 @@ import { Rating } from "react-simple-star-rating";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
+import Loader from "../components/loader"; // Import the Loader component
 
 const AddMenuItem: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const [name, setName] = useState<string>("");
   const [rating, setRating] = useState<number>(4.5);
   const [review, setReview] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Add loading state
   const navigate = useNavigate();
 
   const handleRating = (rate: number) => {
@@ -18,6 +20,7 @@ const AddMenuItem: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true); // Set loading to true when starting the request
     const userData = JSON.parse(localStorage.getItem("userData") || "");
     if (!userData) {
       navigate("/login");
@@ -46,10 +49,14 @@ const AddMenuItem: React.FC = () => {
       setRating(4.5);
     } catch (error) {
       console.error("Error adding menu item:", error);
+    } finally {
+      setIsLoading(false); // Set loading to false after the request completes
     }
   };
+
   return (
     <>
+      {isLoading && <Loader />} {/* Show loader when loading */}
       <ScreenWrapper title="Add Menu Item">
         <form onSubmit={handleSubmit} className="w-full lg:min-w-96 mx-auto">
           <p className="font-poppins text-lg">
