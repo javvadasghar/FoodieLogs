@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import ScreenWrapper from "../components/screenWrapper";
 import { Rating } from "react-simple-star-rating";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import Loader from "../components/loader"; // Import the Loader component
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const EditMenuItem: React.FC = () => {
-  const [menuItem, setmenuItem] = useState<any>(null);
+  const [menuItem, setMenuItem] = useState<any>(null);
   const [name, setName] = useState("");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
@@ -35,12 +36,12 @@ const EditMenuItem: React.FC = () => {
             },
           }
         );
-        setmenuItem(response?.data?.data);
+        setMenuItem(response?.data?.data);
         setName(response?.data?.data?.name);
         setRating(response?.data?.data?.rating);
         setReview(response?.data?.data?.review);
       } catch (error) {
-        console.error("Error fetching restaurant data:", error);
+        console.error("Error fetching menu item data:", error);
       } finally {
         setIsLoading(false); // Set loading to false after the fetch request completes
       }
@@ -75,6 +76,7 @@ const EditMenuItem: React.FC = () => {
 
       if (response.status === 200) {
         toast.success("Menu item updated successfully!");
+        navigate(`/restaurants/${menuItem?.restaurant?.id}`); // Navigate to restaurant page after successful update
       }
     } catch (error) {
       console.error("Error updating menu item:", error);
@@ -88,6 +90,15 @@ const EditMenuItem: React.FC = () => {
     <>
       {isLoading && <Loader />} {/* Show loader when loading */}
       <ScreenWrapper title="Edit Menu Item">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: "Home", to: "/home" },
+            { label: `Restaurant`, to: `/restaurant/${menuItem?.restaurant?.id}` },
+            { label: "Edit Menu Item" }
+          ]}
+        />
+
         <p className="font-poppins text-lg">
           <span className="text-red-500">*</span> required
         </p>
@@ -106,7 +117,7 @@ const EditMenuItem: React.FC = () => {
             />
           </div>
 
-          <div className=" my-12">
+          <div className="my-12">
             <label className="block text-lg font-bold mb-2 uppercase">
               Rating
               <span className="text-red-500">*</span>
@@ -137,7 +148,7 @@ const EditMenuItem: React.FC = () => {
           <div className="overflow-hidden flex flex-col justify-center items-center w-full">
             <button
               type="submit"
-              className=" w-full lg:w-2/5  px-6 py-3 bg-primary hover:bg-secondary text-white font-bold "
+              className="w-full lg:w-2/5 px-6 py-3 bg-primary hover:bg-secondary text-white font-bold"
             >
               SUBMIT
             </button>

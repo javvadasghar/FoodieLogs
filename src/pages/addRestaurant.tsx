@@ -6,6 +6,7 @@ import { Toaster, toast } from "sonner";
 import SelectBoxes from "../components/selectBox";
 import { Prices, Features, Category } from "../data";
 import { useNavigate } from "react-router-dom";
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const AddRestaurant = () => {
   const [name, setName] = useState("");
@@ -71,6 +72,14 @@ const AddRestaurant = () => {
   return (
     <>
       <ScreenWrapper title="Add a Restaurant">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: "Home", to: "/home" },
+            { label: "Add Restaurant" }
+          ]}
+        />
+
         <form onSubmit={handleSubmit}>
           <p className="font-poppins text-lg">
             <span className="text-red-500">*</span> required

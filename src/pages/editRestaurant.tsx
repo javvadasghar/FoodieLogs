@@ -7,6 +7,7 @@ import SelectBoxes from "../components/selectBox";
 import { Prices, Features, Category } from "../data";
 import { Toaster, toast } from "sonner";
 import Loader from "../components/loader"; // Import the Loader component
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const EditRestaurant = () => {
   const [name, setName] = useState("");
@@ -106,6 +107,15 @@ const EditRestaurant = () => {
     <>
       {isLoading && <Loader />} {/* Show loader when loading */}
       <ScreenWrapper title="Edit Restaurant">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: "Home", to: "/home" },
+            { label: `Restaurant`, to: `/restaurant/${id}` }, // Dynamic link to the restaurant page
+            { label: "Edit Restaurant" }
+          ]}
+        />
+
         <p className="font-poppins text-lg">
           <span className="text-red-500">*</span> required
         </p>

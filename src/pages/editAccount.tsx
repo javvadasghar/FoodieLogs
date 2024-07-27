@@ -4,6 +4,7 @@ import { MdArrowBackIosNew } from "react-icons/md";
 import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/loader"; // Import the Loader component
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const EditAccount: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -92,6 +93,14 @@ const EditAccount: React.FC = () => {
         <div className="flex justify-center mb-8">
           <img src="logo.png" alt="Logo" />
         </div>
+             {/* Breadcrumb */}
+             <Breadcrumb
+          items={[
+            { label: "Home", to: "/home" },
+            { label: "Account Settings", to: "/accountSettings" },
+            { label: "Edit Account" }
+          ]}
+        />
 
         {/* Edit Account Title with Arrow */}
         <div className="flex items-center mb-8 gap-4 font-poppins my-3">

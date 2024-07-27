@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import ScreenWrapper from "../components/screenWrapper";
 import { FaSearch } from "react-icons/fa";
 import CustomFilterDropdown from "../components/filters";
@@ -10,6 +10,7 @@ import "../../src/index.css";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
 import Loader from "../components/loader"; // Import the loader component
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const Restaurant: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState("Menu");
@@ -154,6 +155,14 @@ const Restaurant: React.FC = () => {
         handleLike={handleLike}
         isLiked={isLiked}
       >
+        <div className="p-4">
+        <Breadcrumb
+          items={[
+            { label: "Home", to: "/home" },
+            { label: "Restaurant" }
+          ]}
+        />
+      </div>
         <div className="flex flex-row">
           {/* Menu Button */}
           <div

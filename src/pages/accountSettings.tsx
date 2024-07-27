@@ -5,6 +5,7 @@ import Button from "../components/button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loader from "../components/loader"; // Import the Loader component
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const AccountSettings: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -59,7 +60,12 @@ const AccountSettings: React.FC = () => {
         height={400}
         className="my-6"
       />
-
+<Breadcrumb
+        items={[
+          { label: "Home", to: "/home" },
+          { label: "Account Settings" }
+        ]}
+      />
       {/* Container for Arrow and User Details */}
       <div className="w-full lg:w-2/5 xl:w-1/5">
         <div className="flex items-center mb-6 gap-10">
@@ -76,7 +82,6 @@ const AccountSettings: React.FC = () => {
         {/* Edit Icon */}
         <div className="flex justify-center items-center my-7">
           <Link to={`/editAccount`}>
-            {" "}
             <BiSolidPencil
               className="text-primary border-2 border-grayDark rounded-full p-2 cursor-pointer"
               size={40}

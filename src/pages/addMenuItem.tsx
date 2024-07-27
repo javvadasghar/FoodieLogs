@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import Loader from "../components/loader"; // Import the Loader component
+import Breadcrumb from "../components/BreadCrumb"; // Import the Breadcrumb component
 
 const AddMenuItem: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
@@ -58,11 +59,20 @@ const AddMenuItem: React.FC = () => {
     <>
       {isLoading && <Loader />} {/* Show loader when loading */}
       <ScreenWrapper title="Add Menu Item">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: "Home", to: "/home" },
+            { label: `Restaurant`, to: `/restaurant/${restaurantId}` }, // Dynamic link to the restaurant page
+            { label: "Add Menu Item" }
+          ]}
+        />
+
         <form onSubmit={handleSubmit} className="w-full lg:min-w-96 mx-auto">
           <p className="font-poppins text-lg">
             <span className="text-red-500">*</span> required
           </p>
-          <div className="w-full lg:min-w-96 mx-auto  ">
+          <div className="w-full lg:min-w-96 mx-auto">
             <div className="mb-6">
               <label className="block text-lg font-bold mb-2 uppercase">
                 Name
@@ -77,7 +87,7 @@ const AddMenuItem: React.FC = () => {
               />
             </div>
 
-            <div className=" my-12">
+            <div className="my-12">
               <label className="block text-lg font-bold mb-2 uppercase">
                 Rating
                 <span className="text-red-500">*</span>
@@ -110,7 +120,7 @@ const AddMenuItem: React.FC = () => {
           <div className="overflow-hidden flex flex-col justify-center items-center w-full">
             <button
               type="submit"
-              className=" w-full lg:w-2/5  px-6 py-3 bg-primary hover:bg-secondary text-white font-bold "
+              className="w-full lg:w-2/5 px-6 py-3 bg-primary hover:bg-secondary text-white font-bold"
             >
               SUBMIT
             </button>
